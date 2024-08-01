@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Flight Optimization Platform Workflow</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/svg-pan-zoom/3.6.1/svg-pan-zoom.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #1e1e1e;
+            color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+        .container {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: auto; /* Enable scrolling in both directions */
+            position: relative;
+        }
+        #mermaid-diagram {
+            width: 1200px; /* Adjust width to trigger horizontal scroll */
+            height: 1000px; /* Adjust height to trigger vertical scroll */
+        }
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .controls button {
+            background-color: #444;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .controls button:hover {
+            background-color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="mermaid-diagram" class="mermaid">
+        %%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#BB2528', 'edgeLabelBackground':'#2e2e2e', 'tertiaryColor': '#fff' }}}%%
+        graph TD
+            A[User Visits Website] --> B{Registered User?}
+            B -->|No| C[Sign Up]
+            B -->|Yes| D[Log In]
+            C --> E[Create User Profile]
+            D --> F[View Dashboard]
+            E --> F
+            F --> G[Enter/Update Loyalty Program Points]
+            F --> H[Search for Flights]
+            H --> I[Call Amadeus API]
+            I --> J[Retrieve Flight Options]
+            J --> K[Display Flight Options]
+            K --> L[Run Optimization Engine]
+            L --> M[Show Recommendations]
+            M --> N{User Decision}
+            N -->|Book with Points| O[Process Point Booking]
+            N -->|Book with Cash| P[Forward to External Partner]
+            O --> Q[Update User's Point Balance]
+            P --> R[Process Payment]
+            Q --> S[Confirm Booking]
+            R --> S
+            S --> T[Update User Profile]
+            F --> U[View Wishlist]
+            U --> V[Add/Edit Wishlist Item]
+            V --> W[Set Alert Criteria]
+            W --> X[Monitor for Changes]
+            X --> Y{Alert Triggered?}
+            Y -->|Yes| Z[Send Alert to User]
+            Y -->|No| X
+            AA[Admin User] --> AB[Access Admin Panel]
+            AB --> AC[Manage Users]
+            AB --> AD[Set Conversion Rates]
+            AB --> AE[View Analytics]
+            F --> AF[Use Chat Support]
+            AF --> AG[Process Query with OpenAI]
+            AG --> AH[Provide AI-Powered Response]
+            subgraph "Backend Processes"
+            I
+            L
+            X
+            AG
+            end
+            subgraph "External APIs"
+            AI[Amadeus API]
+            AJ[OpenAI API]
+            end
+            I --> AI
+            AG --> AJ
+        </div>
+    </div>
+    <div class="controls">
+        <button onclick="zoomIn()">+</button>
+        <button onclick="zoomOut()">-</button>
+        <button onclick="resetZoom()">Reset</button>
+    </div>
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'dark'
+        });
+
+        let panZoom;
+        mermaid.parseError = function(err) {
+            console.error('Mermaid error: ', err);
+        }
+
+        window.addEventListener('load', function() {
+            const svg = document.querySelector("#mermaid-diagram svg");
+            if (svg) {
+                panZoom = svgPanZoom(svg, {
+                    zoomEnabled: true,
+                    controlIconsEnabled: false,
+                    fit: true,
+                    center: true,
+                    minZoom: 0.1,
+                    maxZoom: 10,
+                    zoomScaleSensitivity: 0.2, // Adjusts the zoom speed
+                    panEnabled: true,
+                    contain: true,
+                    dblClickZoomEnabled: true,
+                    mouseWheelZoomEnabled: true // Enables zooming with the mouse wheel
+                });
+
+                // Resize the panZoom when the window is resized
+                window.addEventListener('resize', function() {
+                    panZoom.resize();
+                    panZoom.fit();
+                    panZoom.center();
+                });
+            } else {
+                console.error('SVG not found');
+            }
+        });
+
+        function zoomIn() {
+            if (panZoom) panZoom.zoomIn();
+        }
+
+        function zoomOut() {
+            if (panZoom) panZoom.zoomOut();
+        }
+
+        function resetZoom() {
+            if (panZoom) {
+                panZoom.resetZoom();
+                panZoom.center();
+            }
+        }
+    </script>
+</body>
+</html>
