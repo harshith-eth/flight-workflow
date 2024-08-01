@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Enhanced Flight Optimization Platform Workflow</title>
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/svg-pan-zoom/3.6.1/svg-pan-zoom.min.js"></script>
@@ -25,8 +25,8 @@
             position: relative;
         }
         #mermaid-diagram {
-            width: 1200px; /* Adjust width to trigger horizontal scroll */
-            height: 1000px; /* Adjust height to trigger vertical scroll */
+            width: 1200px; /* Fixed size for initial load */
+            height: 1000px;
         }
         .controls {
             position: fixed;
@@ -34,6 +34,7 @@
             right: 20px;
             display: flex;
             gap: 10px;
+            z-index: 10; /* Ensure controls are above the diagram */
         }
         .controls button {
             background-color: #444;
@@ -45,6 +46,14 @@
         }
         .controls button:hover {
             background-color: #555;
+        }
+
+        /* Responsive adjustments for mobile devices */
+        @media (max-width: 768px) {
+            #mermaid-diagram {
+                width: 100%;
+                height: auto; /* Adjust height to fit content */
+            }
         }
     </style>
 </head>
@@ -132,7 +141,30 @@
                     panEnabled: true,
                     contain: true,
                     dblClickZoomEnabled: true,
-                    mouseWheelZoomEnabled: true // Enables zooming with the mouse wheel
+                    mouseWheelZoomEnabled: true, // Enables zooming with the mouse wheel
+                    preventMouseEventsDefault: false, // Allow default touch behavior
+                    onUpdatedCTM: function() {
+                        adjustContainerSize(svg); // Adjust the container based on zoom level
+                    },
+                    customEventsHandler: {
+                        // Add custom pinch to zoom event handler
+                        init: function(options) {
+                            this.hammer = new Hammer.Manager(this.svgElement);
+                            this.hammer.add(new Hammer.Pinch({ event: 'pinch' }));
+                            this.hammer.add(new Hammer.Pan({ event: 'pan' }));
+                            this.hammer.on('pinchstart pinchmove', (ev) => {
+                                this.currentPinch = this.currentPinch || this.zoom;
+                                this.currentPinch *= ev.scale;
+                                panZoom.zoomAtPoint(this.currentPinch, ev.center);
+                            });
+                            this.hammer.on('panmove', (ev) => {
+                                panZoom.panBy({ x: ev.deltaX, y: ev.deltaY });
+                            });
+                        },
+                        destroy: function() {
+                            this.hammer.destroy();
+                        }
+                    }
                 });
 
                 // Resize the panZoom when the window is resized
@@ -160,6 +192,14 @@
                 panZoom.center();
             }
         }
+
+        function adjustContainerSize(svg) {
+            const container = document.querySelector('.container');
+            container.style.width = svg.clientWidth + 'px';
+            container.style.height = svg.clientHeight + 'px';
+        }
     </script>
+    <!-- Include Hammer.js for touch gestures -->
+    <script src="https://hammerjs.github.io/dist/hammer.min.js"></script>
 </body>
 </html>
